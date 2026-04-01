@@ -1,119 +1,97 @@
+import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import './index.css';
+import Navbar from './components/Navbar.jsx';
+import SearchBar from './components/SearchBar.jsx';
+import CreatorCard from './components/CreatorCard.jsx';
+import InsightPanel from './components/InsightPanel.jsx';
+import ReportList from './components/ReportList.jsx';
+import AuthCard from './components/AuthCard.jsx';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export default function App() {
+  const [creators, setCreators] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [reports, setReports] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [brand, setBrand] = useState(null);
+
+  useEffect(() => {
+    if (!brand) return;
+    async function fetchData() {
+      try {
+        const [creatorRes, reportRes] = await Promise.all([
+          axios.get(`${API_BASE}/creators`),
+          axios.get(`${API_BASE}/reports`)
+        ]);
+        setCreators(creatorRes.data);
+        setFiltered(creatorRes.data);
+        setSelected(creatorRes.data[0]);
+        setReports(reportRes.data);
+      } catch (err) {
+        console.error('API error', err);
+      }
+    }
+    fetchData();
+  }, [brand]);
+
+  const topCreators = useMemo(() => filtered.slice(0, 5), [filtered]);
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    if (!value) {
+      setFiltered(creators);
+    } else {
+      const term = value.toLowerCase();
+      setFiltered(creators.filter((creator) => creator.name.toLowerCase().includes(term)));
+    }
+  };
+
+  if (!brand) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-indigo-50 flex items-center justify-center px-6">
+        <AuthCard onAuth={setBrand} />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="bg-transparent px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">C</span>
-            </div>
-            <span className="text-lg font-semibold text-gray-800">CreatorLens</span>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-            <a href="#" className="text-gray-700 hover:text-gray-900 text-sm">Dashboard</a>
-            <a href="#" className="text-gray-700 hover:text-gray-900 text-sm">Creators</a>
-            <a href="#" className="text-gray-700 hover:text-gray-900 text-sm">Reports</a>
-          </div>
-
-          {/* Right Links */}
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-700 hover:text-gray-900 text-sm">Help</a>
-            <a href="#" className="text-gray-700 hover:text-gray-900 text-sm">About Us</a>
-            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">Sign In</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section
-        className="relative h-96 bg-cover bg-center bg-no-repeat overflow-hidden"
-        style={{
-          backgroundImage: "url('/background.png')",
-        }}
-      >
-        <div className="absolute inset-0 flex flex-col justify-center px-8">
-          <div className="max-w-3xl">
-            {/* Hero Heading */}
-            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              Detect Fake Influencers Instantly
-            </h1>
-
-            {/* Hero Description */}
-            <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-2xl">
-              <span className="font-semibold">CreatorLens</span> is an analytics platform that helps brands and creators detect fake followers, measure real engagement, and discover trustworthy influencers.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex gap-4">
-              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
-                Get Started
-              </button>
-              <button className="px-8 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition">
-                Sign In
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="bg-white py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Title */}
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
-            Platform Features
-          </h2>
-
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1 */}
-            <div className="bg-purple-50 p-6 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Fake Follower Detection
-              </h3>
-              <p className="text-sm text-gray-600">
-                Identify suspicious or inactive followers using AI-powered analytics.
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-indigo-50 text-slate-900">
+      <Navbar />
+      <main className="max-w-6xl mx-auto px-6 py-10 space-y-6">
+        <header className="bg-white/80 rounded-3xl border border-purple-100 p-6 shadow-lg shadow-purple-100/50">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="text-sm text-purple-500 font-semibold">CreatorLens Dashboard</p>
+              <h1 className="text-3xl font-semibold text-slate-800">Analyze Influencers Across All Platforms</h1>
+              <p className="text-sm text-slate-500 mt-2">
+                Tap AI-powered recommendations to identify authentic creators, compare performance, and generate concise reports.
               </p>
             </div>
+            <SearchBar placeholder="Search creator..." onChange={handleSearch} className="md:w-80" />
+          </div>
+        </header>
 
-            {/* Card 2 */}
-            <div className="bg-purple-50 p-6 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Engagement Analytics
-              </h3>
-              <p className="text-sm text-gray-600">
-                Measure real engagement rates including likes, comments, and audience interests.
-              </p>
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-800">Top Creators</h2>
+              <p className="text-sm text-slate-400">{searchTerm ? 'Filtered results' : 'Trending pick list'}</p>
             </div>
-
-            {/* Card 3 */}
-            <div className="bg-purple-50 p-6 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Influencer Authenticity Score
-              </h3>
-              <p className="text-sm text-gray-600">
-                Calculate trust score that helps brands evaluate creators' reliability across platforms.
-              </p>
-            </div>
-
-            {/* Card 4 */}
-            <div className="bg-purple-50 p-6 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Creator Comparison
-              </h3>
-              <p className="text-sm text-gray-600">
-                Compare multiple creators to discover the most effective influencer partnerships.
-              </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {topCreators.map((creator) => (
+                <CreatorCard key={creator._id} creator={creator} onSelect={setSelected} />
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+
+          <InsightPanel creator={selected} />
+        </section>
+
+        <ReportList reports={reports} />
+      </main>
     </div>
   );
 }
