@@ -5,7 +5,17 @@ export default {
     "./src/**/*.{js,jsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        slate: {
+          950: '#020617',
+        },
+      },
+      backdropBlur: {
+        '3xl': '64px',
+      },
+    },
   },
   plugins: [],
 }
+

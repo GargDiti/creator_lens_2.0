@@ -1,4 +1,8 @@
 node_modules
 dist
-.env
+.env.*
+.env.local
+backend/.env
+backend/node_modules
+backend/dist
 .DS_Store
