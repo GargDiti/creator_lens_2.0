@@ -14,12 +14,18 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const port = process.env.PORT || 5000;
+// <<<<<<< HEAD
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN || "http://localhost:5173",
   "http://localhost:3000",
 ];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
+// =======
+const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+
+app.use(cors({ origin: clientOrigin, credentials: true }));
+// >>>>>>> 7111ec5 (Updated UI and fixed MongoDB connection)
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
@@ -35,13 +41,18 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-connectDB()
-  .then(() => {
+async function startServer() {
+  try {
+    console.log("Connecting to MongoDB...");
+    await connectDB();
+
     app.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
     });
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error("Failed to connect to MongoDB:", error.message);
     process.exit(1);
-  });
+  }
+}
+
+startServer();

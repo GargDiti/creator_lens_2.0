@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "vite",
-    "dev:server": "nodemon server/index.js",
+    "dev:server": "nodemon server/server.js",
+=======
+    "start": "npm run start --prefix backend",
+    "dev": "vite",
+>>>>>>> 7111ec5 (Updated UI and fixed MongoDB connection)
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node backend/index.js"
+    "server": "node backend/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
