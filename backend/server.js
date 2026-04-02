@@ -14,18 +14,12 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const port = process.env.PORT || 5000;
-// <<<<<<< HEAD
 const allowedOrigins = [
-  process.env.CLIENT_ORIGIN || "http://localhost:5173",
-  "http://localhost:3000",
+  process.env.CLIENT_ORIGIN || "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-// =======
-const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
-
-app.use(cors({ origin: clientOrigin, credentials: true }));
-// >>>>>>> 7111ec5 (Updated UI and fixed MongoDB connection)
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
